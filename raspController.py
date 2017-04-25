@@ -5,9 +5,6 @@ import rasp_controlsFinal
 import xml.etree.ElementTree as ET
 
 
-
-
-
 class passWord():
     def __init__(self, index):
         self.index = index
@@ -16,8 +13,11 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
     def __init__(self):
         super(self.__class__, self).__init__()
         self.setupUi(self)
-        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(2)
 
+        #while True != False:
+        #    print time.strftime("%H"+":"+"%M"+":"+"%S")
+        self.lcdnum.display(time.strftime("%H"+":"+"%M"+":"+"%S"))
 
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         
@@ -63,6 +63,8 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
 
         # main window ops
         self.lockback.clicked.connect(lambda : self.lockBack())
+
+        self.start.clicked.connect(lambda : self.updateLCD())
         
         
 
@@ -104,6 +106,14 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
     def lockBack(self):
         self.passEdit.setText("")
         self.stackedWidget.setCurrentIndex(1)
+
+    def updateLCD(self):
+        mins = str(0)
+        
+        while True != False:
+            self.lcdnum.display(time.strftime(":"+"%S"))
+            time.sleep(0.2)
+        
     
 def main():
     app = QtGui.QApplication(sys.argv)

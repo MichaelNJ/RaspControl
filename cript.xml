@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <data>
     <login name="login details">
-        <pass>1230</pass>
+        <pass>1111</pass>
         <trials>3</trials>
     </login>
     <relay1 name="state of relay one">
         <state>0</state>
     </relay1>
     <relay2 name="state of relay two">
-        <state>1</state>
+        <state>0</state>
     </relay2>
     <relay3 name="name of relay 3">
         <state>0</state>
