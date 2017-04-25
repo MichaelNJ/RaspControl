@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'allWindowsFinal.ui'
+# Form implementation generated from reading ui file 'raspUI.ui'
 #
 # Created by: PyQt4 UI code generator 4.11.4
 #
@@ -153,10 +153,6 @@ class Ui_MainWindow(object):
 "color: rgb(255, 255, 255);\n"
 "    border-width: 2px;\n"
 "}"))
-        self.clearpass.setText(_fromUtf8(""))
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/logins/delete.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.clearpass.setIcon(icon)
         self.clearpass.setIconSize(QtCore.QSize(24, 24))
         self.clearpass.setObjectName(_fromUtf8("clearpass"))
         self.gridLogin.addWidget(self.clearpass, 5, 1, 1, 1)
@@ -180,10 +176,6 @@ class Ui_MainWindow(object):
 "color: rgb(255, 255, 255);\n"
 "    border-width: 2px;\n"
 "}"))
-        self.login.setText(_fromUtf8(""))
-        icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(_fromUtf8(":/logins/login3.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.login.setIcon(icon1)
         self.login.setIconSize(QtCore.QSize(24, 24))
         self.login.setObjectName(_fromUtf8("login"))
         self.gridLogin.addWidget(self.login, 5, 4, 1, 1)
@@ -460,29 +452,26 @@ class Ui_MainWindow(object):
         self.horizontalLayout_4 = QtGui.QHBoxLayout()
         self.horizontalLayout_4.setContentsMargins(-1, 0, -1, -1)
         self.horizontalLayout_4.setObjectName(_fromUtf8("horizontalLayout_4"))
-        spacerItem4 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout_4.addItem(spacerItem4)
-        self.lockback = QtGui.QPushButton(self.control)
-        self.lockback.setMinimumSize(QtCore.QSize(80, 30))
-        self.lockback.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.lockback.setStyleSheet(_fromUtf8("QPushButton#lockback{\n"
+        self.lock_2 = QtGui.QPushButton(self.control)
+        self.lock_2.setMinimumSize(QtCore.QSize(100, 50))
+        self.lock_2.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.lock_2.setStyleSheet(_fromUtf8("QPushButton#lock_2{\n"
 "    background-color: rgb(255, 255, 255);\n"
 "    border-style: solid;\n"
 "    border-radius: 7px;\n"
-"    color: rgb(85, 255, 127);\n"
+"    color: rgb(180, 180, 180);\n"
 "    border-width: 2px;\n"
-"    border-color: rgb(85, 255, 127);\n"
+"    border-color: rgb(180, 180, 180);\n"
 "}\n"
-"QPushButton#lockback::pressed{\n"
+"QPushButton#lock_2::pressed{\n"
 "    background-color: rgb(85, 255, 127);\n"
 "color: rgb(255, 255, 255);\n"
 "    border-width: 2px;\n"
 "}"))
-        icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(_fromUtf8(":/logins/login2.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.lockback.setIcon(icon2)
-        self.lockback.setObjectName(_fromUtf8("lockback"))
-        self.horizontalLayout_4.addWidget(self.lockback)
+        self.lock_2.setObjectName(_fromUtf8("lock_2"))
+        self.horizontalLayout_4.addWidget(self.lock_2)
+        spacerItem4 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_4.addItem(spacerItem4)
         self.gridLayout_2.addLayout(self.horizontalLayout_4, 0, 0, 1, 2)
         spacerItem5 = QtGui.QSpacerItem(779, 7, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
         self.gridLayout_2.addItem(spacerItem5, 2, 0, 1, 1)
@@ -494,14 +483,14 @@ class Ui_MainWindow(object):
         self.start.setFont(font)
         self.start.setFocusPolicy(QtCore.Qt.NoFocus)
         self.start.setStyleSheet(_fromUtf8("QPushButton#start{\n"
-"    background-color: rgb(85, 255, 127);\n"
-"    border-style: outset;\n"
+"    background-color: rgb(161, 255, 167);\n"
+"    border-style: solid;\n"
 "    border-radius: 7px;\n"
 "    color: rgb(115, 115, 115);\n"
+"    border-width: 3px;\n"
+"    border-color: rgb(180, 180, 180);\n"
 "}\n"
-"QPushButton#start::pressed{\n"
-"    background-color: rgb(85, 255, 0);\n"
-"}\n"
+"\n"
 ""))
         self.start.setObjectName(_fromUtf8("start"))
         self.gridLayout_2.addWidget(self.start, 5, 0, 1, 1, QtCore.Qt.AlignHCenter)
@@ -517,20 +506,17 @@ class Ui_MainWindow(object):
         self.over_2 = QtGui.QPushButton(self.control)
         self.over_2.setEnabled(True)
         self.over_2.setMinimumSize(QtCore.QSize(70, 20))
-        self.over_2.setMaximumSize(QtCore.QSize(70, 20))
+        self.over_2.setMaximumSize(QtCore.QSize(70, 30))
         self.over_2.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.over_2.setStyleSheet(_fromUtf8("QPushButton#over{\n"
-"    background-color: rgb(255, 255, 255);\n"
+        self.over_2.setStyleSheet(_fromUtf8("QPushButton#over_2{\n"
+"    background-color:rgb(255, 255, 255);\n"
 "    border-style: solid;\n"
-"    border-radius: 7px;\n"
+"    border-radius: 4px;\n"
+"    border-width: 2px;\n"
+"    border-color: rgb(180, 180, 180);\n"
 "    color: rgb(180, 180, 180);\n"
-"    border-width: 2px;\n"
 "}\n"
-"QPushButton#eight::pressed{\n"
-"    background-color: rgb(85, 255, 127);\n"
-"color: rgb(255, 255, 255);\n"
-"    border-width: 2px;\n"
-"}"))
+""))
         self.over_2.setObjectName(_fromUtf8("over_2"))
         self.horizontalLayout_3.addWidget(self.over_2)
         self.line_7 = QtGui.QFrame(self.control)
@@ -549,13 +535,16 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.addWidget(self.line_8)
         self.rone_2 = QtGui.QPushButton(self.control)
         self.rone_2.setEnabled(True)
-        self.rone_2.setMinimumSize(QtCore.QSize(70, 20))
-        self.rone_2.setMaximumSize(QtCore.QSize(100, 20))
+        self.rone_2.setMinimumSize(QtCore.QSize(70, 30))
+        self.rone_2.setMaximumSize(QtCore.QSize(100, 30))
         self.rone_2.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.rone_2.setStyleSheet(_fromUtf8("QPushButton#rone{\n"
-"    background-color: rgb(211, 211, 211);\n"
-"    border-style: outset;\n"
-"    border-radius: 7px;\n"
+        self.rone_2.setStyleSheet(_fromUtf8("QPushButton#rone_2{\n"
+"    background-color:rgb(255, 255, 255);\n"
+"    border-style: solid;\n"
+"    border-radius: 4px;\n"
+"    border-width: 2px;\n"
+"    border-color: rgb(180, 180, 180);\n"
+"    color: rgb(180, 180, 180);\n"
 "}\n"
 ""))
         self.rone_2.setObjectName(_fromUtf8("rone_2"))
@@ -569,12 +558,15 @@ class Ui_MainWindow(object):
         self.rtwo_2 = QtGui.QPushButton(self.control)
         self.rtwo_2.setEnabled(True)
         self.rtwo_2.setMinimumSize(QtCore.QSize(70, 20))
-        self.rtwo_2.setMaximumSize(QtCore.QSize(70, 20))
+        self.rtwo_2.setMaximumSize(QtCore.QSize(70, 30))
         self.rtwo_2.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.rtwo_2.setStyleSheet(_fromUtf8("QPushButton#rtwo{\n"
-"    background-color: rgb(211, 211, 211);\n"
-"    border-style: outset;\n"
-"    border-radius: 7px;\n"
+        self.rtwo_2.setStyleSheet(_fromUtf8("QPushButton#rtwo_2{\n"
+"    background-color:rgb(255, 255, 255);\n"
+"    border-style: solid;\n"
+"    border-radius: 4px;\n"
+"    border-width: 2px;\n"
+"    border-color: rgb(180, 180, 180);\n"
+"    color: rgb(180, 180, 180);\n"
 "}\n"
 ""))
         self.rtwo_2.setObjectName(_fromUtf8("rtwo_2"))
@@ -588,12 +580,15 @@ class Ui_MainWindow(object):
         self.rthree_2 = QtGui.QPushButton(self.control)
         self.rthree_2.setEnabled(True)
         self.rthree_2.setMinimumSize(QtCore.QSize(70, 20))
-        self.rthree_2.setMaximumSize(QtCore.QSize(70, 20))
+        self.rthree_2.setMaximumSize(QtCore.QSize(70, 30))
         self.rthree_2.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.rthree_2.setStyleSheet(_fromUtf8("QPushButton#rthree{\n"
-"    background-color: rgb(211, 211, 211);\n"
-"    border-style: outset;\n"
-"    border-radius: 7px;\n"
+        self.rthree_2.setStyleSheet(_fromUtf8("QPushButton#rthree_2{\n"
+"    background-color:rgb(255, 255, 255);\n"
+"    border-style: solid;\n"
+"    border-radius: 4px;\n"
+"    border-width: 2px;\n"
+"    border-color: rgb(180, 180, 180);\n"
+"    color: rgb(180, 180, 180);\n"
 "}\n"
 ""))
         self.rthree_2.setObjectName(_fromUtf8("rthree_2"))
@@ -760,8 +755,17 @@ class Ui_MainWindow(object):
         font.setPointSize(40)
         self.lcdnum.setFont(font)
         self.lcdnum.setStyleSheet(_fromUtf8("QLCDNumber#lcdnum{\n"
-"    color: rgb(115, 115, 115);\n"
+"    color:rgb(115, 115, 115);\n"
+"    border-style: solid;\n"
+"    border-width: 3px;\n"
+"    border-color: rgb(180, 180, 180);\n"
+"    border-radius: 7px;\n"
 "}"))
+        self.lcdnum.setFrameShape(QtGui.QFrame.WinPanel)
+        self.lcdnum.setFrameShadow(QtGui.QFrame.Plain)
+        self.lcdnum.setSmallDecimalPoint(False)
+        self.lcdnum.setNumDigits(5)
+        self.lcdnum.setSegmentStyle(QtGui.QLCDNumber.Filled)
         self.lcdnum.setObjectName(_fromUtf8("lcdnum"))
         self.gridLayout_2.addWidget(self.lcdnum, 3, 0, 1, 1, QtCore.Qt.AlignHCenter)
         spacerItem7 = QtGui.QSpacerItem(779, 37, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
@@ -814,7 +818,9 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "RaspControl", None))
         self.welcome.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:72pt; color:#55ff7f;\"> welcome </span></p></body></html>", None))
         self.begin.setText(_translate("MainWindow", "Start", None))
-        self.label.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:20pt; color:#55ff7f;\">Login Required</span></p></body></html>", None))
+        self.label.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:20pt; color:#b4b4b4;\">Login Required</span></p></body></html>", None))
+        self.clearpass.setText(_translate("MainWindow", "CLEAR", None))
+        self.login.setText(_translate("MainWindow", "LOGIN", None))
         self.six.setText(_translate("MainWindow", "6", None))
         self.five.setText(_translate("MainWindow", "5", None))
         self.one.setText(_translate("MainWindow", "1", None))
@@ -825,15 +831,14 @@ class Ui_MainWindow(object):
         self.two.setText(_translate("MainWindow", "2", None))
         self.three.setText(_translate("MainWindow", "3", None))
         self.zero.setText(_translate("MainWindow", "0", None))
-        self.lockback.setText(_translate("MainWindow", "Lock", None))
-        self.start.setText(_translate("MainWindow", "Start", None))
-        self.over_2.setText(_translate("MainWindow", "Override", None))
+        self.lock_2.setText(_translate("MainWindow", "Lock", None))
+        self.start.setText(_translate("MainWindow", "START", None))
+        self.over_2.setText(_translate("MainWindow", "E-Stop", None))
         self.rone_2.setText(_translate("MainWindow", "Relay 1", None))
         self.rtwo_2.setText(_translate("MainWindow", "Relay 2", None))
         self.rthree_2.setText(_translate("MainWindow", "Relay 3", None))
-        self.timer_label.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" color:#737373;\">Timer</span></p></body></html>", None))
+        self.timer_label.setText(_translate("MainWindow", "<html><head/><body><p>Timer</p></body></html>", None))
         self.errorOccur.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:14pt;\">error occurred</span></p></body></html>", None))
         self.errorCode.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:20pt; font-weight:600;\">error code : </span></p></body></html>", None))
         self.realError.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:14pt;\">error</span></p></body></html>", None))
 
-import rasp_one_rc

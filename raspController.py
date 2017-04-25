@@ -1,24 +1,20 @@
 import sys
 import time
 from PyQt4 import QtGui, QtCore
+from PyQt4.QtCore import QThread
 import rasp_controlsFinal
 import xml.etree.ElementTree as ET
 
 
-class passWord():
-    def __init__(self, index):
-        self.index = index
+    
 
 class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
     def __init__(self):
         super(self.__class__, self).__init__()
         self.setupUi(self)
-        self.stackedWidget.setCurrentIndex(2)
+        self.stackedWidget.setCurrentIndex(0)
 
-        #while True != False:
-        #    print time.strftime("%H"+":"+"%M"+":"+"%S")
-        self.lcdnum.display(time.strftime("%H"+":"+"%M"+":"+"%S"))
-
+        #have the +
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         
         # parses the xml file
@@ -28,11 +24,10 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
 
         states = []
 
-        if len(root) == 4:
+        if len(root) == 5:
             for i in range(len(root)):
                 states.append(root[i][0].text)
                 i += 1
-            print states
         else:
             self.stackedWidget.setCurrentIndex(3)
             self.errorOccur.setText("An Error Occurred")
@@ -62,9 +57,11 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         self.passEdit.setText("")
 
         # main window ops
-        self.lockback.clicked.connect(lambda : self.lockBack())
-
-        self.start.clicked.connect(lambda : self.updateLCD())
+        self.lock_2.clicked.connect(lambda : self.lockBack())
+        self.start_time = 20
+        self.lcdnum.display("%d:%02d" % (self.start_time/60,self.start_time % 60))
+        self.start.clicked.connect(lambda : self.startBiz())
+        # self.worker = WorkerThread()
         
         
 
@@ -107,12 +104,32 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         self.passEdit.setText("")
         self.stackedWidget.setCurrentIndex(1)
 
-    def updateLCD(self):
-        mins = str(0)
+    def startBiz(self):
+        parse = ET.parse('cript.xml')
+        root = parse.getroot()
+
+        # 0 is START 1 is STOP
+        if root[1][0].text == "0":
+            self.start.setStyleSheet("background-color: rgb(161, 255, 167); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
+            self.start.setText("START")
+            root[1][0].text = str(1)
+            root.set('Toggle', 'On/Off')
+            
+        elif root[1][0].text == "1":
+            self.start.setText("STOP")
+            self.start.setStyleSheet("background-color: rgb(255, 87, 90); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
+            root[1][0].text = str(0)
+            root.set('Toggle', 'On/Off')
+
+        else:
+            self.stackedWidget.setCurrentIndex(3)
+            self.errorOccur.setText("An Error Occurred")
+            self.errorCode.setText("<b>Error Code</b>" + " :450")
+            self.realError.setText("Error Parsing the xml file : Could not parse On/Off button state")
+
+        parse.write('cript.xml')
         
-        while True != False:
-            self.lcdnum.display(time.strftime(":"+"%S"))
-            time.sleep(0.2)
+        #self.start.setStyleSheet("")
         
     
 def main():

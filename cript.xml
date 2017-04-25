@@ -1,16 +1,18 @@
-<?xml version="1.0"?>
-<data>
+<data Toggle="On/Off">
     <login name="login details">
         <pass>1111</pass>
         <trials>3</trials>
     </login>
+    <toggle name="state of the start/stop button">
+        <state>0</state>
+    </toggle>
     <relay1 name="state of relay one">
         <state>0</state>
     </relay1>
     <relay2 name="state of relay two">
         <state>0</state>
     </relay2>
-    <relay3 name="name of relay 3">
+    <relay3 name="state of relay 3">
         <state>0</state>
     </relay3>
 </data>
