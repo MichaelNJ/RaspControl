@@ -5,9 +5,10 @@ Hello, this is Michael.
 To run the program use the command: python raspController.py
 
 It is the bare GUI, no functionality yet :). It has a few dependencies and you'll to download them on your Raspberry PI.
-1. sudo apt-get install python-pyqt4
-2. sudo apt-get update
-3. sudo apt-get upgrade
+1. sudo apt-get install pyqt4-dev-tools
+2. sudo apt-get install python-qt4
+3. sudo apt-get update
+4. sudo apt-get upgrade
 
 The password is stored in cript.xml, you can change it from there.
 
