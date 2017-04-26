@@ -14,4 +14,14 @@ The password is stored in cript.xml, you can change it from there.
 
 I hope you get no errors! If you do, contact me ;)
 
+Hi again...
+since the UI worked. please run
+
+sudo apt install mpg321
+
+this will install the necessary modules to play music in the background. Place
+any .mp3 files in the MusicFIles folder. An mp3 will be randowmly played
+
+:)
+
 Thank You, Regards Michael.

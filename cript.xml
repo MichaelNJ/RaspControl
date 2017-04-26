@@ -7,12 +7,12 @@
         <state>0</state>
     </toggle>
     <relay1 name="state of relay one">
-        <state>0</state>
+        <state>1</state>
     </relay1>
     <relay2 name="state of relay two">
-        <state>0</state>
+        <state>1</state>
     </relay2>
     <relay3 name="state of relay 3">
-        <state>0</state>
+        <state>1</state>
     </relay3>
 </data>

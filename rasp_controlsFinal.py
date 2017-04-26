@@ -777,6 +777,8 @@ class Ui_MainWindow(object):
         self.error.setObjectName(_fromUtf8("error"))
         self.gridLayout_3 = QtGui.QGridLayout(self.error)
         self.gridLayout_3.setObjectName(_fromUtf8("gridLayout_3"))
+        spacerItem9 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Minimum)
+        self.gridLayout_3.addItem(spacerItem9, 1, 0, 1, 1)
         self.gridLayout_5 = QtGui.QGridLayout()
         self.gridLayout_5.setHorizontalSpacing(0)
         self.gridLayout_5.setObjectName(_fromUtf8("gridLayout_5"))
@@ -787,7 +789,7 @@ class Ui_MainWindow(object):
         self.logo.setMinimumSize(QtCore.QSize(30, 30))
         self.logo.setMaximumSize(QtCore.QSize(30, 30))
         self.logo.setText(_fromUtf8(""))
-        self.logo.setPixmap(QtGui.QPixmap(_fromUtf8(":/logins/indicator_input_error.png")))
+        self.logo.setPixmap(QtGui.QPixmap(_fromUtf8(":/error/indicator_input_error.png")))
         self.logo.setScaledContents(True)
         self.logo.setObjectName(_fromUtf8("logo"))
         self.gridLayout_5.addWidget(self.logo, 0, 0, 1, 1, QtCore.Qt.AlignHCenter)
@@ -801,17 +803,34 @@ class Ui_MainWindow(object):
         self.label_2 = QtGui.QLabel(self.error)
         self.label_2.setText(_fromUtf8(""))
         self.label_2.setObjectName(_fromUtf8("label_2"))
-        self.gridLayout_3.addWidget(self.label_2, 2, 1, 1, 1)
-        spacerItem9 = QtGui.QSpacerItem(20, 100, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Maximum)
-        self.gridLayout_3.addItem(spacerItem9, 0, 1, 1, 1)
-        spacerItem10 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Minimum)
-        self.gridLayout_3.addItem(spacerItem10, 1, 0, 1, 1)
+        self.gridLayout_3.addWidget(self.label_2, 4, 1, 1, 1)
+        spacerItem10 = QtGui.QSpacerItem(20, 100, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Maximum)
+        self.gridLayout_3.addItem(spacerItem10, 0, 1, 1, 1)
+        self.goback = QtGui.QPushButton(self.error)
+        self.goback.setMaximumSize(QtCore.QSize(16777215, 50))
+        self.goback.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.goback.setStyleSheet(_fromUtf8("QPushButton#goback{\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-style: solid;\n"
+"    border-radius: 7px;\n"
+"    color: rgb(115, 115, 115);\n"
+"    border-width: 3px;\n"
+"    border-color: rgb(180, 180, 180);\n"
+"}\n"
+"QPushButton#goback::pressed{\n"
+"    background-color:rgb(180, 180, 180);\n"
+"    color: rgb(255, 255, 255);\n"
+"}\n"
+"\n"
+""))
+        self.goback.setObjectName(_fromUtf8("goback"))
+        self.gridLayout_3.addWidget(self.goback, 5, 1, 1, 1)
         self.stackedWidget.addWidget(self.error)
         self.gridLayout.addWidget(self.stackedWidget, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.stackedWidget.setCurrentIndex(2)
+        self.stackedWidget.setCurrentIndex(3)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -841,4 +860,6 @@ class Ui_MainWindow(object):
         self.errorOccur.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:14pt;\">error occurred</span></p></body></html>", None))
         self.errorCode.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:20pt; font-weight:600;\">error code : </span></p></body></html>", None))
         self.realError.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:14pt;\">error</span></p></body></html>", None))
+        self.goback.setText(_translate("MainWindow", "Go Back", None))
 
+import ui_rc

@@ -1,9 +1,13 @@
 import sys
+import os
+from os import listdir
+import subprocess
 import time
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import QThread
 import rasp_controlsFinal
 import xml.etree.ElementTree as ET
+import random
 
 
     
@@ -47,6 +51,9 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         self.nine.clicked.connect(lambda : self.insertPass(str(9)))
         self.zero.clicked.connect(lambda : self.insertPass(str(0)))
 
+        #error page
+        self.goback.clicked.connect(lambda : self.errorBack())
+
         # Login
         self.login.clicked.connect(lambda : self.logIn(root, states))
 
@@ -58,12 +65,13 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
 
         # main window ops
         self.lock_2.clicked.connect(lambda : self.lockBack())
-        self.start_time = 20
-        self.lcdnum.display("%d:%02d" % (self.start_time/60,self.start_time % 60))
+        self.timer = QtCore.QTimer(self)
+
         self.start.clicked.connect(lambda : self.startBiz())
         # self.worker = WorkerThread()
         
-        
+    def errorBack(self):
+        self.stackedWidget.setCurrentIndex(2)
 
     def beginLogin(self):
         self.stackedWidget.setCurrentIndex(1)
@@ -104,30 +112,81 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         self.passEdit.setText("")
         self.stackedWidget.setCurrentIndex(1)
 
+    def updateLCD(self):
+        
+        mins = "00"
+        secs = "00"
+        self.startSecs += 1
+        self.lcdnum.display("00 :" + "%s" %self.startSecs )
+        print "LCD updating %s " % self.startSecs
+        if self.startSecs == 10:
+            self.lcdnum.display("01 :" + "0%s" % (self.startSecs-10) )
+            self.timer.stop()
+
+
     def startBiz(self):
-        parse = ET.parse('cript.xml')
-        root = parse.getroot()
-
-        # 0 is START 1 is STOP
-        if root[1][0].text == "0":
-            self.start.setStyleSheet("background-color: rgb(161, 255, 167); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
-            self.start.setText("START")
-            root[1][0].text = str(1)
-            root.set('Toggle', 'On/Off')
+        # code for playing music +
+        try:
+            mp3_files = [f for f in listdir('./MusicFiles/') if f[-4:] == '.mp3']
             
-        elif root[1][0].text == "1":
-            self.start.setText("STOP")
-            self.start.setStyleSheet("background-color: rgb(255, 87, 90); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
-            root[1][0].text = str(0)
-            root.set('Toggle', 'On/Off')
+            numMps = 0
 
-        else:
+            parse = ET.parse('cript.xml')
+            root = parse.getroot()
+
+
+            # 0 is START 1 is STOP
+            if root[1][0].text == "0":
+                #kill all background music when stop button is pressed
+                subprocess.Popen(['killall', 'mpg321'])
+                
+
+                self.start.setStyleSheet("background-color: rgb(161, 255, 167); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
+                self.start.setText("START")
+                root[1][0].text = str(1)
+                root.set('Toggle', 'On/Off')
+            
+            elif root[1][0].text == "1":
+                if numMps == len(mp3_files):
+                    self.stackedWidget.setCurrentIndex(3)
+                    self.errorOccur.setText("An Error Occurred")
+                    self.errorCode.setText("<b>Error Code</b>" + " :550")
+                    self.realError.setText("Did not find any .mp3 files in the Musics Folder")
+                else:
+                    x = random.randint(0, len(mp3_files))
+                    print x
+                    try:
+                        subprocess.Popen(['mpg321', './MusicFiles/%s' % mp3_files[x]])
+                        print "Playing mp3 file "
+                        time.sleep(1)
+                    except IndexError:
+                        subprocess.Popen(['mpg321', './MusicFiles/%s' % mp3_files[x-1]])
+                        print "Playing mp3 file "
+                        time.sleep(1)
+                    
+
+                self.start.setText("STOP")
+                self.start.setStyleSheet("background-color: rgb(255, 87, 90); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
+                root[1][0].text = str(0)
+                root.set('Toggle', 'On/Off')
+
+            else:
+            
+
+                self.stackedWidget.setCurrentIndex(3)
+                self.errorOccur.setText("An Error Occurred")
+                self.errorCode.setText("<b>Error Code</b>" + " :450")
+                self.realError.setText("Error Parsing the xml file : Could not parse On/Off button state")
+
+            parse.write('cript.xml')
+        except OSError:
             self.stackedWidget.setCurrentIndex(3)
             self.errorOccur.setText("An Error Occurred")
-            self.errorCode.setText("<b>Error Code</b>" + " :450")
-            self.realError.setText("Error Parsing the xml file : Could not parse On/Off button state")
-
-        parse.write('cript.xml')
+            self.errorCode.setText("<b>Error Code</b>" + " :550")
+            self.realError.setText("Did not find any .mp3 files in the Musics Folder")
+        else:
+            print "There are %s .mp3 files in the MusicFiles Directory" % len(mp3_files)
+            
         
         #self.start.setStyleSheet("")
         
