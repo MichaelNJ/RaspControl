@@ -24,4 +24,8 @@ any .mp3 files in the MusicFIles folder. An mp3 will be randowmly played
 
 :)
 
+## Timer COntrol
+Added the timer functionality.
+
+
 Thank You, Regards Michael.
