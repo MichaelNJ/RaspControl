@@ -66,15 +66,19 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         # main window ops
         self.lock_2.clicked.connect(lambda : self.lockBack())
 
-        self.startSecs = 0
-        self.startmins = 0
+        self.startSecs = 60
+        self.startmins = 3
         self.timer = QtCore.QTimer(self)
+        self.counter = 0
 
         # this timer will control the lcd display, i stop it to start it when i need it
         self.timer.timeout.connect(self.updateLCD)
         self.timer.start(1000)
         self.timer.stop()
 
+        self.mp3_files = [self.f for self.f in listdir('./MusicFiles/') if self.f[-4:] == '.mp3']
+        print self.f[:3]
+        
         self.start.clicked.connect(lambda : self.startBiz())
         # self.worker = WorkerThread()
         
@@ -122,62 +126,108 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         self.stackedWidget.setCurrentIndex(1)
 
     def updateLCD(self):
-        self.startSecs += 1
-        self.updateDet()
+
+        if self.counter == 4:
+            self.counter = 0
+            self.timer.stop()
+            self.startSecs = 60
+            self.startmins = 3
+            self.lcdnum.display("0"+"%s" % str(4) + ":0" + "%s" % str(0))
+            subprocess.Popen(['killall', 'mpg321'])
+
+            parse = ET.parse('cript.xml')
+            root = parse.getroot()
+
+            self.start.setStyleSheet("background-color: rgb(161, 255, 167); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
+            self.start.setText("START")
+            root[1][0].text = str(1)
+            root.set('Toggle', 'On/Off')
+
+            
+        else:
+            self.startSecs -= 1
+            #print self.startSecs
+            self.updateDet()
 
 
     def updateDet(self):
         self.lcdnum.display("0"+"%s" % str(self.startmins) + ":" + "%s" % str(self.startSecs))
 
-        if self.startSecs == 60:
-            self.startSecs = 0
-            self.startmins += 1
-            self.lcdnum.display("0"+"%s" % str(self.startmins) + ":" + "%s" % str(self.startSecs))
+        if self.startSecs == 0:
+            self.counter += 1
 
+            if self.startmins != 0:
+                self.startmins -= 1
+            
+            self.startSecs = 60
+            self.lcdnum.display("0"+"%s" % str(self.startmins) + ":" + "%s" % str(self.startSecs))
+        
         if self.startSecs <= 9:
             self.lcdnum.display("0"+"%s" % str(self.startmins) + ":0" + "%s" % str(self.startSecs))
 
-        if self.startmins == 4:
-            self.lcdnum.display("0"+"%s" % str(self.startmins) + ":0" + "%s" % str(self.startSecs))
-            self.timer.stop()
+
 
         # manipulate the relays and update xml file
 
-        # at three minutes, turn relay one on, turn relay 2 on
-        if self.startmins == 3 and self.startSecs == 0:
+        # at three minutes and 30 secs, turn relay one and relay 2 on
+        if self.startmins == 3 and self.startSecs == 30:
+            subprocess.call(['killall', 'mpg321'])
+
+            try:
+                subprocess.Popen(['mpg321', './MusicFiles/001.mp3'])
+                print "Playing mp3 file 001.mp3"
+                time.sleep(1)
+                #print self.startmins
+
+            except IndexError:
+                subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x-1]])
+                print "Playing mp3 file "
+                time.sleep(1)
+
             # relay one on
             self.rone_2.setStyleSheet("background-color: rgb(85, 255, 127); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
 
             # relay two on
             self.rtwo_2.setStyleSheet("background-color: rgb(85, 255, 127); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
         
-        # at 3 mins and 35 seconds turn relay 2 off
-        if self.startmins == 3 and self.startSecs == 5:
-            # relay 2 off
-            print self.states[3]
+        # deactivate relay 2 after 5 seconds
+        if self.startmins == 3 and self.startSecs == 25:
             self.rtwo_2.setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
 
 
-        # at 3 mins and 30 seconds turn relay one off, relay 3 on 
-        if self.startmins == 3 and self.startSecs == 30:
-            # relay one off
+        
+        
+        # after 3 mins turn relay 1 off
+        if self.startmins == 0 and self.startSecs == 30:
+            subprocess.call(['killall', 'mpg321'])
+
+            try:
+                subprocess.Popen(['mpg321', './MusicFiles/002.mp3'])
+                print "Playing mp3 file 001.mp3"
+                time.sleep(1)
+                #print self.startmins
+
+            except IndexError:
+                subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x-1]])
+                print "Playing mp3 file "
+                time.sleep(1)
+
+            # deactivate relay 1
             self.rone_2.setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
 
-            # relay 3 on
-            print self.states[3]
+            # activate relay 3
             self.rthree_2.setStyleSheet("background-color: rgb(85, 255, 127); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
 
 
-        # at 3 mins and 35 seconds turn relay 3 off
-        if self.startmins == 3 and self.startSecs == 35:
+        # sfter 5 seconds turn relay 3 off
+        if self.startmins == 0 and self.startSecs == 25:
+            # relay three off
             self.rthree_2.setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
 
 
     def startBiz(self):
         # code for playing music +
         try:
-            mp3_files = [f for f in listdir('./MusicFiles/') if f[-4:] == '.mp3']
-            
             numMps = 0
 
             parse = ET.parse('cript.xml')
@@ -204,35 +254,49 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
                 #self.lcdnum.display("00"+":"+"00")
             
             elif root[1][0].text == "1":
-                if len(mp3_files) == numMps:
+                
+                if len(self.mp3_files) == numMps:
                     self.stackedWidget.setCurrentIndex(3)
                     self.errorOccur.setText("An Error Occurred")
                     self.errorCode.setText("<b>Error Code</b>" + " :550")
                     self.realError.setText("Did not find any .mp3 files in the Musics Folder")
+               
                 else:
-                    x = random.randint(0, len(mp3_files))
                     try:
-                        subprocess.Popen(['mpg321', './MusicFiles/%s' % mp3_files[x]])
-                        print "Playing mp3 file "
+                        self.t = True
+                        
+                        print len(self.mp3_files)
+
+                        while self.t:
+                            x = random.randint(0, (len(self.mp3_files) -1) )
+
+                            if self.mp3_files[x][:3] != "001" and self.mp3_files[x][:3] != '002' and self.mp3_files[x][:3] != '003':
+                                self.t = False
+                            
+
+                        subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x]])
                         time.sleep(1)
+
+                        self.start.setText("STOP")
+                        self.start.setStyleSheet("background-color: rgb(255, 87, 90); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
+                        root[1][0].text = str(0)
+                        root.set('Toggle', 'On/Off')
+
+                        # Start (Continue) with thhe timer
+                        self.timer.start()
+
+
                     except IndexError:
-                        subprocess.Popen(['mpg321', './MusicFiles/%s' % mp3_files[x-1]])
-                        print "Playing mp3 file "
+                        subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x-1]])
                         time.sleep(1)
+                        print "Got and IndexError"
 
-                self.start.setText("STOP")
-                self.start.setStyleSheet("background-color: rgb(255, 87, 90); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
-                root[1][0].text = str(0)
-                root.set('Toggle', 'On/Off')
-
-                # Start (Continue) with thhe timer
-                self.timer.start()
-
+                
             else:
                 self.stackedWidget.setCurrentIndex(3)
                 self.errorOccur.setText("An Error Occurred")
                 self.errorCode.setText("<b>Error Code</b>" + " :450")
-                self.realError.setText("Error Parsing the xml file : Could not parse On/Off button state")
+                self.realError.setText("Error Parsing the xml file : Could not parse On/Off start state")
 
             parse.write('cript.xml')
         except OSError:
@@ -241,7 +305,7 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
             self.errorCode.setText("<b>Error Code</b>" + " :550")
             self.realError.setText("Did not find any .mp3 files in the Musics Folder")
         else:
-            print "There are %s .mp3 files in the MusicFiles Directory" % len(mp3_files)
+            print "There are %s .mp3 files in the MusicFiles Directory" % len(self.mp3_files)
         
     
 def main():
