@@ -4,6 +4,7 @@ from os import listdir
 import subprocess
 import time
 from PyQt4 import QtGui, QtCore
+from PyQt4.QtGui import QAction
 from PyQt4.QtCore import QThread
 import rasp_controlsFinal
 import xml.etree.ElementTree as ET
@@ -17,6 +18,27 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         super(self.__class__, self).__init__()
         self.setupUi(self)
         self.stackedWidget.setCurrentIndex(0)
+
+
+        # the menu bar
+        bar = self.menuBar()
+
+        actions = bar.addMenu("Actions")
+
+        hide = QAction("Hide", self)
+        hide.setShortcut("Ctrl+H")
+
+        stop = QAction("Stop", self)
+        stop.setShortcut("Ctrl+S")
+
+        restart = QAction("Restart", self)
+        restart.setShortcut("Ctrl+R")
+
+        actions.addAction(hide)
+        actions.addAction(stop)
+        actions.addAction(restart)
+
+        actions.triggered[QAction].connect(self.hideMenu)
 
         #have the +
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
@@ -81,6 +103,48 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         
         self.start.clicked.connect(lambda : self.startBiz())
         # self.worker = WorkerThread()
+
+    def hideMenu(self, q):
+        parse = ET.parse('cript.xml')
+        root = parse.getroot()
+
+        if q.text() == "Hide":
+            self.passEdit.setText("")
+            self.stackedWidget.setCurrentIndex(1)
+
+        elif q.text() == "Stop":
+            
+            print "Stoping timer"
+            # Stop (Pause) the timer
+            self.timer.stop()
+
+            #kill all background music when stop button is pressed
+            subprocess.Popen(['killall', 'mpg321'])
+            
+
+            self.start.setStyleSheet("background-color: rgb(161, 255, 167); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
+            self.start.setText("START")
+            root[1][0].text = str(1)
+            root.set('Toggle', 'On/Off')
+
+        elif q.text() == "Restart":
+            self.counter = 0
+            self.timer.stop()
+            self.startSecs = 60
+            self.startmins = 3
+            self.lcdnum.display("0"+"%s" % str(4) + ":0" + "%s" % str(0))
+            subprocess.Popen(['killall', 'mpg321'])
+
+            self.start.setStyleSheet("background-color: rgb(161, 255, 167); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
+            
+            self.start.setText("START")
+            root[1][0].text = str(1)
+            root.set('Toggle', 'On/Off')
+            print "Restarting timer"
+
+        
+        else:
+            print "Unable to parse shortcut"
         
     def errorBack(self):
         self.stackedWidget.setCurrentIndex(2)
@@ -104,6 +168,14 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         if len(current) == 4 and current == root[0][0].text:
             print "correct password"
             self.stackedWidget.setCurrentIndex(2)
+ 
+            if str(self.startSecs) == "60" and str(self.startmins) == "3":
+                self.lcdnum.display("0"+"%s" % str(4) + ":0" + "%s" % str(0))
+            else:
+                self.lcdnum.display("0"+"%s" % str(self.startmins) + ":" + "%s" % str(self.startSecs))
+            
+                if self.startSecs <= 9:
+                    self.lcdnum.display("0"+"%s" % str(self.startmins) + ":0" + "%s" % str(self.startSecs))
         else:
             self.passEdit.setText("")
             self.passEdit.setStyleSheet("border-style: solid;	border-color: rgb(255, 0, 0); border-width:2px; border-radius: 7px;")
