@@ -8,14 +8,12 @@ from os import listdir
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import QThread, pyqtSignal
 from PyQt4.QtGui import QAction
-
 import rasp_controlsFinal
 
 #rasp GPIO imports. finally :/
 import RPi.GPIO as GPIO
 
 GPIO.setmode(GPIO.BCM)
-
 
 
 # pin 18 will use the rasps internal pull down
@@ -32,29 +30,19 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         self.setupUi(self)
         self.stackedWidget.setCurrentIndex(0)
 
-        # the menu bar
-        bar = self.menuBar()
+        # all my shortcuts are in order
+        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+Q"), self, self.close)
+
+        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+R"), self, self.restartTimer)
+
+        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+H"), self, self.hideMenu)
+
+        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+S"), self, self.stopTimer)
+
         
         GPIO.setup(18, GPIO.OUT)
         GPIO.setup(23, GPIO.OUT)
         GPIO.setup(24, GPIO.OUT)
-
-        actions = bar.addMenu("Actions")
-
-        hide = QAction("Hide", self)
-        hide.setShortcut("Ctrl+H")
-
-        stop = QAction("Stop", self)
-        stop.setShortcut("Ctrl+S")
-
-        restart = QAction("Restart", self)
-        restart.setShortcut("Ctrl+R")
-
-        actions.addAction(hide)
-        actions.addAction(stop)
-        actions.addAction(restart)
-
-        actions.triggered[QAction].connect(self.hideMenu)
 
         #have the +
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
@@ -425,31 +413,36 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
             else:
                 try:
                     self.t = True
-                    
-                    print len(self.mp3_files)
+                        #self.songs = []
 
-                    # Generating a random song from the music folder that is not 001, 002, 003
-                    """while self.t:
-                        x = random.randint(0, (len(self.mp3_files) -1) )
+                        """for song_id in range(len(self.mp3_files)):
+                            if song_id == 0 or song_id == 1 or song_id == 2:
+                                pass
+                            else:
+                                self.songs.append(song_id)
 
-                        if self.mp3_files[x][:3] != "001" and self.mp3_files[x][:3] != '002' and self.mp3_files[x][:3] != '003':
-                            self.t = False
-                        """
-                    x = random.randint(0, (len(self.mp3_files) -1) )
-                    
-                    #if self.mp3_files[x][:3] != "001" and self.mp3_files[x][:3] != '002' and self.mp3_files[x][:3] != '003':
-                    #    x = random.randint(0, (len(self.mp3_files) -1) )
-                    
-                    subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x]])
-                    #time.sleep(1)
+                            song_id += 1
 
-                    self.start.setText("STOP")
-                    self.start.setStyleSheet("background-color: rgb(255, 87, 90); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
-                    root[1][0].text = str(0)
-                    root.set('Toggle', 'On/Off')
+                        print len(self.songs)
 
-                    # Start (Continue) with thhe timer
-                    self.timer.start()
+                        x = random.randint(self.songs[0], len(self.songs))"""
+                        while self.t:
+                            x = random.randint(0, (len(self.mp3_files) -1) )
+
+                            if self.mp3_files[x][:3] != "001" and self.mp3_files[x][:3] != '002' and self.mp3_files[x][:3] != '003':
+                                self.t = False
+
+
+                        subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x]])
+                        time.sleep(1)
+
+                        self.start.setText("STOP")
+                        self.start.setStyleSheet("background-color: rgb(255, 87, 90); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
+                        root[1][0].text = str(0)
+                        root.set('Toggle', 'On/Off')
+
+                        # Start (Continue) with thhe timer
+                        self.timer.start()
 
 
                 except IndexError:

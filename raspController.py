@@ -1,17 +1,15 @@
-import sys
 import os
-from os import listdir
-import subprocess
-import time
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtGui import QAction
-from PyQt4.QtCore import QThread
-import rasp_controlsFinal
-import xml.etree.ElementTree as ET
 import random
+import subprocess
+import sys
+import time
+import xml.etree.ElementTree as ET
+from os import listdir
+from PyQt4 import QtCore, QtGui
+from PyQt4.QtCore import QThread, SIGNAL
+from PyQt4.QtGui import QAction
+import rasp_controlsFinal
 
-
-    
 
 class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
     def __init__(self):
@@ -19,40 +17,27 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         self.setupUi(self)
         self.stackedWidget.setCurrentIndex(0)
 
+        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+Q"), self, self.close)
 
-        # the menu bar
-        bar = self.menuBar()
+        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+R"), self, self.restartTimer)
 
-        actions = bar.addMenu("Actions")
+        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+H"), self, self.hideMenu)
 
-        hide = QAction("Hide", self)
-        hide.setShortcut("Ctrl+H")
-
-        stop = QAction("Stop", self)
-        stop.setShortcut("Ctrl+S")
-
-        restart = QAction("Restart", self)
-        restart.setShortcut("Ctrl+R")
-
-        actions.addAction(hide)
-        actions.addAction(stop)
-        actions.addAction(restart)
-
-        actions.triggered[QAction].connect(self.hideMenu)
+        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+S"), self, self.stopTimer)
 
         #have the +
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         
         # parses the xml file
         parse = ET.parse('cript.xml')
-        root = parse.getroot()
-        stored = root[0][0].text
+        self.root = parse.getroot()
+        stored = self.root[0][0].text
 
         self.states = []
 
-        if len(root) == 5:
-            for i in range(len(root)):
-                self.states.append(root[i][0].text)
+        if len(self.root) == 5:
+            for i in range(len(self.root)):
+                self.states.append(self.root[i][0].text)
                 i += 1
         else:
             self.stackedWidget.setCurrentIndex(3)
@@ -77,7 +62,7 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         self.goback.clicked.connect(lambda : self.errorBack())
 
         # Login
-        self.login.clicked.connect(lambda : self.logIn(root))
+        self.login.clicked.connect(lambda : self.logIn(self.root))
 
         self.clearpass.clicked.connect(lambda :  self.clearText())
         self.passEdit.setEnabled(False)
@@ -99,63 +84,56 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         self.timer.stop()
 
         self.mp3_files = [self.f for self.f in listdir('./MusicFiles/') if self.f[-4:] == '.mp3']
-        print self.f[:3]
+        #print self.f[:3]
         
         self.start.clicked.connect(lambda : self.startBiz())
         # self.worker = WorkerThread()
 
-    def hideMenu(self, q):
-        parse = ET.parse('cript.xml')
-        root = parse.getroot()
+    def hideMenu(self):
+        self.passEdit.setText("")
+        self.beginLogin()
 
-        if q.text() == "Hide":
-            self.passEdit.setText("")
-            self.stackedWidget.setCurrentIndex(1)
+    def stopTimer(self):
+        # Stop (Pause) the timer
+        self.timer.stop()
 
-        elif q.text() == "Stop":
-            
-            print "Stoping timer"
-            # Stop (Pause) the timer
-            self.timer.stop()
+        #kill all background music when stop button is pressed
+        subprocess.Popen(['killall', 'mpg321'])
 
-            #kill all background music when stop button is pressed
-            subprocess.Popen(['killall', 'mpg321'])
-            
+        self.start.setStyleSheet("background-color: rgb(161, 255, 167); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
+        self.start.setText("START")
+        self.root[1][0].text = str(1)
+        self.root.set('Toggle', 'On/Off')
 
-            self.start.setStyleSheet("background-color: rgb(161, 255, 167); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
-            self.start.setText("START")
-            root[1][0].text = str(1)
-            root.set('Toggle', 'On/Off')
+    def restartTimer(self):
+        # revert back all functionality
+        self.counter = 0
+        self.timer.stop()
+        self.startSecs = 60
+        self.startmins = 3
+        self.lcdnum.display("0"+"%s" % str(4) + ":0" + "%s" % str(0))
+        subprocess.Popen(['killall', 'mpg321'])
 
-        elif q.text() == "Restart":
-            self.counter = 0
-            self.timer.stop()
-            self.startSecs = 60
-            self.startmins = 3
-            self.lcdnum.display("0"+"%s" % str(4) + ":0" + "%s" % str(0))
-            subprocess.Popen(['killall', 'mpg321'])
+        self.start.setStyleSheet("background-color: rgb(161, 255, 167); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
+        
+        self.start.setText("START")
+        self.root[1][0].text = str(1)
+        self.root.set('Toggle', 'On/Off')
 
-            self.start.setStyleSheet("background-color: rgb(161, 255, 167); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
-            
-            self.start.setText("START")
-            root[1][0].text = str(1)
-            root.set('Toggle', 'On/Off')
-            print "Restarting timer"
 
         
-        else:
-            print "Unable to parse shortcut"
-        
+    # Error handling, go back to the login page
     def errorBack(self):
         self.stackedWidget.setCurrentIndex(2)
 
+    # take you to the login page
     def beginLogin(self):
         self.stackedWidget.setCurrentIndex(1)
     
     def insertPass(self, index):
         current = self.passEdit.text()
         self.passEdit.setStyleSheet("border-style: solid;	border-color: rgb(180, 180, 180); border-width:2px; border-radius: 7px;")
-        print str(len(current)) + index
+        #print str(len(current)) + index
         self.passEdit.setText(current + index)
 
     def logIn(self, root):
@@ -166,7 +144,7 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
             self.passEdit.setStyleSheet("border-style: solid;	border-color: rgb(255, 0, 0); border-width:2px; border-radius: 7px;")
 
         if len(current) == 4 and current == root[0][0].text:
-            print "correct password"
+            #print "correct password"
             self.stackedWidget.setCurrentIndex(2)
  
             if str(self.startSecs) == "60" and str(self.startmins) == "3":
@@ -180,15 +158,7 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
             self.passEdit.setText("")
             self.passEdit.setStyleSheet("border-style: solid;	border-color: rgb(255, 0, 0); border-width:2px; border-radius: 7px;")
         
-        """if states[2] == "1":
-            self.rone_2.setStyleSheet("background-color: rgb(85, 255, 127); border-style: outset; border-radius: 6px;")
-
-        if states[3] == "1":
-            self.rtwo_2.setStyleSheet("background-color: rgb(85, 255, 127); border-style: outset; border-radius: 6px;")
-
-        if states[4] == "1":
-            self.rthree_2.setStyleSheet("background-color: rgb(85, 255, 127); border-style: outset; border-radius: 6px;")"""
-
+    
     def clearText(self):
         self.passEdit.clear()
 
@@ -248,13 +218,10 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
             try:
                 subprocess.Popen(['mpg321', './MusicFiles/001.mp3'])
                 print "Playing mp3 file 001.mp3"
-                time.sleep(1)
-                #print self.startmins
 
             except IndexError:
                 subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x-1]])
                 print "Playing mp3 file "
-                time.sleep(1)
 
             # relay one on
             self.rone_2.setStyleSheet("background-color: rgb(85, 255, 127); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
@@ -266,8 +233,6 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         if self.startmins == 3 and self.startSecs == 25:
             self.rtwo_2.setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
 
-
-        
         
         # after 3 mins turn relay 1 off
         if self.startmins == 0 and self.startSecs == 30:
@@ -276,13 +241,9 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
             try:
                 subprocess.Popen(['mpg321', './MusicFiles/002.mp3'])
                 print "Playing mp3 file 001.mp3"
-                time.sleep(1)
-                #print self.startmins
 
             except IndexError:
                 subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x-1]])
-                print "Playing mp3 file "
-                time.sleep(1)
 
             # deactivate relay 1
             self.rone_2.setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
@@ -336,15 +297,25 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
                 else:
                     try:
                         self.t = True
-                        
-                        print len(self.mp3_files)
+                        self.songs = []
 
+                        """for song_id in range(len(self.mp3_files)):
+                            if song_id == 0 or song_id == 1 or song_id == 2:
+                                pass
+                            else:
+                                self.songs.append(song_id)
+
+                            song_id += 1
+
+                        print len(self.songs)
+
+                        x = random.randint(self.songs[0], len(self.songs))"""
                         while self.t:
                             x = random.randint(0, (len(self.mp3_files) -1) )
 
                             if self.mp3_files[x][:3] != "001" and self.mp3_files[x][:3] != '002' and self.mp3_files[x][:3] != '003':
                                 self.t = False
-                            
+
 
                         subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x]])
                         time.sleep(1)
