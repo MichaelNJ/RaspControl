@@ -226,11 +226,13 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
             self.passEdit.setStyleSheet("border-style: solid;	border-color: rgb(255, 0, 0); border-width:2px; border-radius: 7px;")
 
         if len(current) == 4 and current == root[0][0].text:
+            
             print "correct password"
             self.stackedWidget.setCurrentIndex(2)
  
             if str(self.startSecs) == "60" and str(self.startmins) == "3":
                 self.lcdnum.display("0"+"%s" % str(4) + ":0" + "%s" % str(0))
+            
             else:
                 self.lcdnum.display("0"+"%s" % str(self.startmins) + ":" + "%s" % str(self.startSecs))
             
@@ -413,36 +415,23 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
             else:
                 try:
                     self.t = True
-                        #self.songs = []
+                    while self.t:
+                        x = random.randint(0, (len(self.mp3_files) -1) )
 
-                        """for song_id in range(len(self.mp3_files)):
-                            if song_id == 0 or song_id == 1 or song_id == 2:
-                                pass
-                            else:
-                                self.songs.append(song_id)
-
-                            song_id += 1
-
-                        print len(self.songs)
-
-                        x = random.randint(self.songs[0], len(self.songs))"""
-                        while self.t:
-                            x = random.randint(0, (len(self.mp3_files) -1) )
-
-                            if self.mp3_files[x][:3] != "001" and self.mp3_files[x][:3] != '002' and self.mp3_files[x][:3] != '003':
-                                self.t = False
+                        if self.mp3_files[x][:3] != "001" and self.mp3_files[x][:3] != '002' and self.mp3_files[x][:3] != '003':
+                            self.t = False
 
 
-                        subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x]])
-                        time.sleep(1)
+                    subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x]])
+                    time.sleep(1)
 
-                        self.start.setText("STOP")
-                        self.start.setStyleSheet("background-color: rgb(255, 87, 90); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
-                        root[1][0].text = str(0)
-                        root.set('Toggle', 'On/Off')
+                    self.start.setText("STOP")
+                    self.start.setStyleSheet("background-color: rgb(255, 87, 90); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
+                    root[1][0].text = str(0)
+                    root.set('Toggle', 'On/Off')
 
-                        # Start (Continue) with thhe timer
-                        self.timer.start()
+                    # Start (Continue) with thhe timer
+                    self.timer.start()
 
 
                 except IndexError:
@@ -463,7 +452,6 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
 
 def askrestart(channel):
     global restart
-
     if restart == 0:
         restart = 1
         
