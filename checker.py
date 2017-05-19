@@ -30,8 +30,47 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         self.setupUi(self)
         self.stackedWidget.setCurrentIndex(0)
 
-        # Login screen Button click events
+        # all my shortcuts are in order
+        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+Q"), self, self.close)
 
+        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+R"), self, self.restartTimer)
+
+        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+H"), self, self.hideMenu)
+
+        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+S"), self, self.stopTimer)
+
+        
+        GPIO.setup(18, GPIO.OUT)
+        GPIO.setup(23, GPIO.OUT)
+        GPIO.setup(24, GPIO.OUT)
+
+        #have the +
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        
+        # parses the xml file
+        parse = ET.parse('cript.xml')
+        self.root = parse.getroot()
+        stored = self.root[0][0].text
+        
+        self.states = []
+
+        if len(self.root) == 6:
+            for i in range(len(self.root)):
+                self.states.append(self.root[i][0].text)
+                i += 1
+
+            # set the GPIO pins to the state in xml file
+            GPIO.output(18, int(self.states[2]))
+            GPIO.output(23, int(self.states[3]))
+            GPIO.output(24, int(self.states[4]))
+                
+        else:
+            self.stackedWidget.setCurrentIndex(3)
+            self.errorOccur.setText("An Error Occurred")
+            self.errorCode.setText("<b>Error Code</b>" + " :445")
+            self.realError.setText("Error Parsing the xml file")
+
+        # Login screen Button click events
         self.begin.clicked.connect(lambda : self.beginLogin())
         self.one.clicked.connect(lambda : self.insertPass(str(1)))
         self.two.clicked.connect(lambda : self.insertPass(str(2)))
@@ -77,46 +116,11 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         self.waiting.start(1000)
         self.waiting.stop()
         
-        self.start.clicked.connect(lambda : self.startBiz())  
-
-        # all my shortcuts are in order
-        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+Q"), self, self.close)
-
-        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+R"), self, self.restartTimer)
-
-        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+H"), self, self.hideMenu)
-
-        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+S"), self, self.stopTimer)
-
-        GPIO.setup(18, GPIO.OUT)
-        GPIO.setup(23, GPIO.OUT)
-        GPIO.setup(24, GPIO.OUT)
-
-        #have the +
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         
-        # parses the xml file
-        parse = ET.parse('cript.xml')
-        self.root = parse.getroot()
-        stored = self.root[0][0].text
         
-        self.states = []
+        self.start.clicked.connect(lambda : self.startBiz())
 
-        if len(self.root) == 5:
-            for i in range(len(self.root)):
-                self.states.append(self.root[i][0].text)
-                i += 1
-
-
-            # set the GPIO pins to the state in xml file
-            GPIO.output(18, int(self.states[2]))
-            GPIO.output(23, int(self.states[3]))
-            GPIO.output(24, int(self.states[4]))     
-        else:
-            self.stackedWidget.setCurrentIndex(3)
-            self.errorOccur.setText("An Error Occurred")
-            self.errorCode.setText("<b>Error Code</b>" + " :445")
-            self.realError.setText("Error Parsing the xml file.")
+        
 
     def hideMenu(self, q):
         if q.text() == "Hide":
@@ -151,6 +155,7 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         self.waiting.start()
 
     def restartTimer(self):
+        #GPIO.cleanup()
         # revert back all functionality
         self.counter = 0
         self.timer.stop()
@@ -169,16 +174,26 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         self.rtwo_2.setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
         self.rthree_2.setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
 
+        
+        # re initialize my GPIO's as OUT
+        #GPIO.setmode(GPIO.BCM)
+        #GPIO.setup(18, GPIO.OUT)
+        #GPIO.setup(23, GPIO.OUT)
+        #GPIO.setup(24, GPIO.OUT)
+
+        #GPIO.setup(25, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+        #GPIO.add_event_detect(25, GPIO.FALLING, callback=self.askrestart())
+
         # turn everything off
         GPIO.output(18, 1)
         GPIO.output(23, 1)
         GPIO.output(24, 1)
 
-
         
     # Error handling, go back to the login page
     def errorBack(self):
-        self.close()
+        self.stackedWidget.setCurrentIndex(0)
 
     # take you to the login page
     def beginLogin(self):
@@ -211,13 +226,11 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
             self.passEdit.setStyleSheet("border-style: solid;	border-color: rgb(255, 0, 0); border-width:2px; border-radius: 7px;")
 
         if len(current) == 4 and current == root[0][0].text:
-            
             print "correct password"
             self.stackedWidget.setCurrentIndex(2)
  
             if str(self.startSecs) == "60" and str(self.startmins) == "3":
                 self.lcdnum.display("0"+"%s" % str(4) + ":0" + "%s" % str(0))
-            
             else:
                 self.lcdnum.display("0"+"%s" % str(self.startmins) + ":" + "%s" % str(self.startSecs))
             
@@ -255,9 +268,10 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
             root.set('Toggle', 'On/Off')
 
             # turn everything off
-            #GPIO.output(18, 1)
-            #GPIO.output(23, 1)
-            #GPIO.output(24, 1)
+            GPIO.output(18, 1)
+            GPIO.output(23, 1)
+            GPIO.output(24, 1)
+
             
         else:
             print str(restart)
@@ -304,15 +318,16 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         if self.startmins == 3 and self.startSecs == 30:
             subprocess.call(['killall', 'mpg321'])
 
-            self.t = True
+            try:
+                subprocess.Popen(['mpg321', './MusicFiles/001.mp3'])
+                print "Playing mp3 file 001.mp3"
+                #time.sleep(1)
+                #print self.startmins
 
-            while self.t:
-                x = random.randint(0, (len(self.mp3_files) -1) )
-
-                if self.mp3_files[x][:3] != "001" and self.mp3_files[x][:3] != '002' and self.mp3_files[x][:3] != '003':
-                    self.t = False
-
-            subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x]])
+            except IndexError:
+                subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x-1]])
+                print "Playing mp3 file "
+                #time.sleep(1)
 
             # relay one on
             GPIO.output(18, 0)
@@ -327,15 +342,23 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
             GPIO.output(23, 1)
             self.rtwo_2.setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
 
+
+        
+        
         # after 3 mins turn relay 1 off
         if self.startmins == 0 and self.startSecs == 30:
             subprocess.call(['killall', 'mpg321'])
 
             try:
                 subprocess.Popen(['mpg321', './MusicFiles/002.mp3'])
+                print "Playing mp3 file 001.mp3"
+                #time.sleep(1)
+                #print self.startmins
 
             except IndexError:
                 subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x-1]])
+                print "Playing mp3 file "
+                #time.sleep(1)
 
             # deactivate relay 1
             GPIO.output(18, 1)
@@ -370,6 +393,7 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
             #kill all background music when stop button is pressed
             subprocess.Popen(['killall', 'mpg321'])
             
+
             self.start.setStyleSheet("background-color: rgb(161, 255, 167); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
             self.start.setText("START")
             root[1][0].text = str(1)
@@ -378,58 +402,24 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
             self.waiting.start()
 
         elif root[1][0].text == "1":
-            
             self.waiting.stop()
             
             if len(self.mp3_files) == numMps:
-                    self.stackedWidget.setCurrentIndex(3)
-                    self.errorOccur.setText("An Error Occurred")
-                    self.errorCode.setText("<b>Error Code</b>" + " :550")
-                    self.realError.setText("Did not find any .mp3 files in the Musics Folder")
-               
+                self.stackedWidget.setCurrentIndex(3)
+                self.errorOccur.setText("An Error Occurred")
+                self.errorCode.setText("<b>Error Code</b>" + " :550")
+                self.realError.setText("Did not find any .mp3 files in the Musics Folder")
+           
             else:
-                if self.startmins == 3 and self.startSecs >= 30:
-                    subprocess.call(['killall', 'mpg321'])
-                    try:
-                        subprocess.Popen(['mpg321', './MusicFiles/001.mp3'])
-                    
-                    except IndexError:
-                        subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x-1]])
-
-                elif self.startmins == 0 and self.startSecs <= 30:
-                    subprocess.call(['killall', 'mpg321'])
-
-                    try:
-                        subprocess.Popen(['mpg321', './MusicFiles/002.mp3'])
-
-                    except IndexError:
-                        subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x-1]])
-                
-                else:
-                    self.n = True
-                    while self.n:
-                        x = random.randint(0, (len(self.mp3_files) -1) )
-                        if self.mp3_files[x][:3] != "001" and self.mp3_files[x][:3] != '002' and self.mp3_files[x][:3] != '003':
-                            self.n = False
-
-                    subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x]])
-                    
                 try:
-<<<<<<< HEAD
-                    self.start.setText("STOP")
-                    self.start.setStyleSheet("background-color: rgb(255, 87, 90); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
-                    root[1][0].text = str(0)
-                    root.set('Toggle', 'On/Off')
-
-=======
                     self.t = True
+
                     while self.t:
                         x = random.randint(0, (len(self.mp3_files) -1) )
 
                         if self.mp3_files[x][:3] != "001" and self.mp3_files[x][:3] != '002' and self.mp3_files[x][:3] != '003':
                             self.t = False
 
-
                     subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x]])
                     time.sleep(1)
 
@@ -438,16 +428,13 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
                     root[1][0].text = str(0)
                     root.set('Toggle', 'On/Off')
 
->>>>>>> 52c1c4076bb2fabc2a36f2a851fe023dfe219101
                     # Start (Continue) with thhe timer
                     self.timer.start()
-
 
                 except IndexError:
                     subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x-1]])
                     time.sleep(1)
                     print "Got and IndexError"
-
             
         else:
             self.stackedWidget.setCurrentIndex(3)
@@ -461,12 +448,14 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
 
 def askrestart(channel):
     global restart
+
     if restart == 0:
         restart = 1
+        
     else:
         pass
 
-#GPIO.add_event_detect(25, GPIO.FALLING, callback=askrestart)
+GPIO.add_event_detect(25, GPIO.FALLING, callback=askrestart)
 
 def main():
     app = QtGui.QApplication(sys.argv)
@@ -480,11 +469,8 @@ def main():
     control.setGeometry(hs, ws, h, w)
     control.show()
     
-    #
-    
     app.exec_()
 
     
 if __name__ == '__main__':
     main()
-
