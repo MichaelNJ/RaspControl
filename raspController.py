@@ -201,7 +201,7 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
             if self.startmins != 0:
                 self.startmins -= 1
             
-            self.startSecs = 60
+            self.startSecs = 59
             self.lcdnum.display("0"+"%s" % str(self.startmins) + ":" + "%s" % str(self.startSecs))
         
         if self.startSecs <= 9:
@@ -212,16 +212,18 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         # manipulate the relays and update xml file
 
         # at three minutes and 30 secs, turn relay one and relay 2 on
-        if self.startmins == 3 and self.startSecs == 30:
+        if self.startmins == 3 and self.startSecs == 30 :
             subprocess.call(['killall', 'mpg321'])
 
-            try:
-                subprocess.Popen(['mpg321', './MusicFiles/001.mp3'])
-                print "Playing mp3 file 001.mp3"
+            self.t = True
 
-            except IndexError:
-                subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x-1]])
-                print "Playing mp3 file "
+            while self.t:
+                x = random.randint(0, (len(self.mp3_files) -1) )
+
+                if self.mp3_files[x][:3] != "001" and self.mp3_files[x][:3] != '002' and self.mp3_files[x][:3] != '003':
+                    self.t = False
+
+            subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x]])
 
             # relay one on
             self.rone_2.setStyleSheet("background-color: rgb(85, 255, 127); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
@@ -240,7 +242,6 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
 
             try:
                 subprocess.Popen(['mpg321', './MusicFiles/002.mp3'])
-                print "Playing mp3 file 001.mp3"
 
             except IndexError:
                 subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x-1]])
@@ -259,6 +260,7 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
 
 
     def startBiz(self):
+        self.toggle = True
         # code for playing music +
         try:
             numMps = 0
@@ -276,16 +278,11 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
                 #kill all background music when stop button is pressed
                 subprocess.Popen(['killall', 'mpg321'])
                 
-
                 self.start.setStyleSheet("background-color: rgb(161, 255, 167); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
                 self.start.setText("START")
                 root[1][0].text = str(1)
                 root.set('Toggle', 'On/Off')
 
-                # revert the timer back to zero and display it on the lcd
-                #self.startSecs = 0
-                #self.lcdnum.display("00"+":"+"00")
-            
             elif root[1][0].text == "1":
                 
                 if len(self.mp3_files) == numMps:
@@ -295,37 +292,44 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
                     self.realError.setText("Did not find any .mp3 files in the Musics Folder")
                
                 else:
-                    try:
-                        self.t = True
-                        self.songs = []
+                    if self.startmins == 3 and self.startSecs >= 30:
 
-                        """for song_id in range(len(self.mp3_files)):
-                            if song_id == 0 or song_id == 1 or song_id == 2:
-                                pass
-                            else:
-                                self.songs.append(song_id)
+                        subprocess.call(['killall', 'mpg321'])
 
-                            song_id += 1
+                        try:
+                            subprocess.Popen(['mpg321', './MusicFiles/001.mp3'])
+                        
+                        except IndexError:
 
-                        print len(self.songs)
+                            subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x-1]])
 
-                        x = random.randint(self.songs[0], len(self.songs))"""
-                        while self.t:
+                    elif self.startmins == 0 and self.startSecs <= 30:
+                        subprocess.call(['killall', 'mpg321'])
+
+                        try:
+                            subprocess.Popen(['mpg321', './MusicFiles/002.mp3'])
+
+                        except IndexError:
+                            subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x-1]])
+                    
+                    else:
+                        self.n = True
+                        while self.n:
                             x = random.randint(0, (len(self.mp3_files) -1) )
 
                             if self.mp3_files[x][:3] != "001" and self.mp3_files[x][:3] != '002' and self.mp3_files[x][:3] != '003':
-                                self.t = False
+                                self.n = False
 
 
                         subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x]])
-                        time.sleep(1)
-
+                        
+                    try:
                         self.start.setText("STOP")
                         self.start.setStyleSheet("background-color: rgb(255, 87, 90); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
                         root[1][0].text = str(0)
                         root.set('Toggle', 'On/Off')
 
-                        # Start (Continue) with thhe timer
+                        # Start (Continue) with the timer
                         self.timer.start()
 
 

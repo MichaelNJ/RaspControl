@@ -4,7 +4,7 @@
         <trials>3</trials>
     </login>
     <toggle name="state of the start/stop button">
-        <state>0</state>
+        <state>1</state>
     </toggle>
     <relay1 name="state of relay one">
         <state>1</state>
