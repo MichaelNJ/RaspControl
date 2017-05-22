@@ -82,7 +82,7 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         # all my shortcuts are in order
         QtGui.QShortcut(QtGui.QKeySequence("Ctrl+Q"), self, self.close)
 
-        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+R"), self, self.restartTimer)
+        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+R"), self, self.restartShortcut)
 
         QtGui.QShortcut(QtGui.QKeySequence("Ctrl+H"), self, self.hideMenu)
 
@@ -128,12 +128,37 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
             self.stopTimer()
 
         elif q.text() == "Restart":
-            self.restartTimer()
+            self.restartShortcut()
             print "Restarting timer"
 
-        
         else:
             print "Unable to parse shortcut"
+
+    def restartShortcut(self):
+        # revert back all functionality
+        self.counter = 0
+        self.timer.stop()
+        self.startSecs = 60
+        self.startmins = 3
+        self.lcdnum.display("0"+"%s" % str(4) + ":0" + "%s" % str(0))
+        subprocess.Popen(['killall', 'mpg321'])
+
+        self.start.setStyleSheet("background-color: rgb(161, 255, 167); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
+        
+        self.start.setText("START")
+        self.root[1][0].text = str(1)
+        self.root.set('Toggle', 'On/Off')
+
+        self.rone_2.setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
+        self.rtwo_2.setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
+        self.rthree_2.setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
+
+        # turn everything off
+        GPIO.output(18, 0)
+        GPIO.output(23, 0)
+        GPIO.output(24, 0)
+
+
 
     def stopTimer(self):
         # Stop (Pause) the timer
@@ -170,14 +195,27 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         self.rthree_2.setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
 
         # turn everything off
-        GPIO.output(18, 1)
-        GPIO.output(23, 1)
-        GPIO.output(24, 1)
+        GPIO.output(18, 0)
+        GPIO.output(23, 0)
+        GPIO.output(24, 0)
+
+        subprocess.call(['killall', 'mpg321'])
+
+        try:
+            subprocess.Popen(['mpg321', './MusicFiles/003.mp3'])
+
+        except IndexError:
+            subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x-1]])
+            self.stackedWidget.setCurrentIndex(3)
+            self.errorOccur.setText("An Error Occurred")
+            self.errorCode.setText("<b>Error Code</b>" + " :445")
+            self.realError.setText("Did not find file '003.mp3' in your musics folder \nPlease add one and restart program")
 
 
         
     # Error handling, go back to the login page
     def errorBack(self):
+        subprocess.call(['killall', 'mpg321'])
         self.close()
 
     # take you to the login page
@@ -255,9 +293,9 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
             root.set('Toggle', 'On/Off')
 
             # turn everything off
-            #GPIO.output(18, 1)
-            #GPIO.output(23, 1)
-            #GPIO.output(24, 1)
+            GPIO.output(18, 0)
+            GPIO.output(23, 0)
+            GPIO.output(24, 0)
             
         else:
             print str(restart)
@@ -266,8 +304,6 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
                 print "Button was pressed"
                 restart = 0
 
-            #GPIO.add_event_detect(25, GPIO.FALLING, callback=(lambda : self.askrestart))
-                
             self.startSecs -= 1
             #print self.startSecs
             self.updateDet()
@@ -278,7 +314,7 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
         if self.waitingSecs == 10:
             self.waitingSecs = 0
             self.waiting.stop()
-            self.restartTimer()
+            self.restartShortcut()
 
 
     def updateDet(self):
@@ -315,16 +351,16 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
             subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x]])
 
             # relay one on
-            GPIO.output(18, 0)
+            GPIO.output(18, 1)
             self.rone_2.setStyleSheet("background-color: rgb(85, 255, 127); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
 
             # relay two on
-            GPIO.output(23, 0)
+            GPIO.output(23, 1)
             self.rtwo_2.setStyleSheet("background-color: rgb(85, 255, 127); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
         
         # deactivate relay 2 after 5 seconds
         if self.startmins == 3 and self.startSecs == 25:
-            GPIO.output(23, 1)
+            GPIO.output(23, 0)
             self.rtwo_2.setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
 
         # after 3 mins turn relay 1 off
@@ -338,18 +374,18 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
                 subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x-1]])
 
             # deactivate relay 1
-            GPIO.output(18, 1)
+            GPIO.output(18, 0)
             self.rone_2.setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
 
             # activate relay 3
-            GPIO.output(24, 0)
+            GPIO.output(24, 1)
             self.rthree_2.setStyleSheet("background-color: rgb(85, 255, 127); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
 
 
         # sfter 5 seconds turn relay 3 off
         if self.startmins == 0 and self.startSecs == 25:
             # relay three off
-            GPIO.output(24, 1)
+            GPIO.output(24, 0)
             self.rthree_2.setStyleSheet("background-color: rgb(255, 255, 255); border-style: solid; border-radius: 4px; border-width: 2px; border-color: rgb(180, 180, 180);")
 
 
@@ -415,30 +451,11 @@ class controller(QtGui.QMainWindow, rasp_controlsFinal.Ui_MainWindow):
                     subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x]])
                     
                 try:
-<<<<<<< HEAD
                     self.start.setText("STOP")
                     self.start.setStyleSheet("background-color: rgb(255, 87, 90); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
                     root[1][0].text = str(0)
                     root.set('Toggle', 'On/Off')
 
-=======
-                    self.t = True
-                    while self.t:
-                        x = random.randint(0, (len(self.mp3_files) -1) )
-
-                        if self.mp3_files[x][:3] != "001" and self.mp3_files[x][:3] != '002' and self.mp3_files[x][:3] != '003':
-                            self.t = False
-
-
-                    subprocess.Popen(['mpg321', './MusicFiles/%s' % self.mp3_files[x]])
-                    time.sleep(1)
-
-                    self.start.setText("STOP")
-                    self.start.setStyleSheet("background-color: rgb(255, 87, 90); border-style: solid; border-radius: 7px; border-width: 3px; border-color: rgb(180, 180, 180);")
-                    root[1][0].text = str(0)
-                    root.set('Toggle', 'On/Off')
-
->>>>>>> 52c1c4076bb2fabc2a36f2a851fe023dfe219101
                     # Start (Continue) with thhe timer
                     self.timer.start()
 
@@ -466,7 +483,7 @@ def askrestart(channel):
     else:
         pass
 
-#GPIO.add_event_detect(25, GPIO.FALLING, callback=askrestart)
+GPIO.add_event_detect(25, GPIO.FALLING, callback=askrestart)
 
 def main():
     app = QtGui.QApplication(sys.argv)
